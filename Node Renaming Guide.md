@@ -203,7 +203,7 @@ nano /etc/hostname
 
 ```
 
-Replace the content with the new node name (e.g., `hal-pve03`).
+Replace the content with the new node name (e.g., `node-pve01`).
 
 Edit `/etc/hosts`:
 
@@ -216,7 +216,7 @@ Ensure your management IP maps to the new hostname and FQDN:
 
 ```text
 127.0.0.1 localhost
-192.168.50.108 hal-pve03.halnt.dev hal-pve03
+<ip address> <fqdn> <hostname>
 
 ```
 
