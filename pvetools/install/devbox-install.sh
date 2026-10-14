@@ -67,6 +67,30 @@ sed -i 's/bind-addr: 127.0.0.1:8080/bind-addr: 0.0.0.0:8080/g' ~/.config/code-se
 $STD systemctl restart code-server@root
 msg_ok "Installed Browser IDE"
 
+msg_info "Installing Resource Monitor (btop) & Prompt (Starship)"
+$STD apt-get install -y btop
+$STD curl -sS https://starship.rs/install.sh | sh -s -- -y
+msg_ok "Installed btop and Starship"
+
+msg_info "Configuring Shell Profile & Aliases"
+cat << 'EOF' >> /root/.bashrc
+
+# Modern CLI Aliases
+alias ls='eza --icons --group-directories-first'
+alias ll='eza -alF --icons --group-directories-first'
+alias cat='bat -pp'
+alias grep='rg'
+alias find='fd'
+
+# Initialize Zoxide (Smart cd)
+eval "$(zoxide init bash)"
+alias cd='z'
+
+# Initialize Starship Prompt
+eval "$(starship init bash)"
+EOF
+msg_ok "Configured Shell Profile"
+
 motd_ssh
 customize
 
