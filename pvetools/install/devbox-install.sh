@@ -13,13 +13,24 @@ $STD apt-get install -y curl wget git sudo build-essential python3 python3-pip p
 msg_ok "Installed Core Dependencies"
 
 msg_info "Configuring Auto-Login"
-# This systemd override tells the container's console to bypass the login prompt
+# 1. Override for standard LXC TTY
 $STD mkdir -p /etc/systemd/system/container-getty@1.service.d
-echo "[Service]
+cat <<EOF >/etc/systemd/system/container-getty@1.service.d/override.conf
+[Service]
 ExecStart=
-ExecStart=-/sbin/agetty --autologin root --noclear --keep-baud tty%I 115200,38400,9600 \$TERM" >/etc/systemd/system/container-getty@1.service.d/override.conf
+ExecStart=-/sbin/agetty --autologin root --noclear --keep-baud tty%I 115200,38400,9600 \$TERM
+EOF
+
+# 2. Override for Proxmox Web GUI Console (xterm.js)
+$STD mkdir -p /etc/systemd/system/console-getty.service.d
+cat <<EOF >/etc/systemd/system/console-getty.service.d/override.conf
+[Service]
+ExecStart=
+ExecStart=-/sbin/agetty --autologin root --noclear --keep-baud console 115200,38400,9600 \$TERM
+EOF
+
 $STD systemctl daemon-reload
-$STD systemctl restart container-getty@1.service
+$STD systemctl restart container-getty@1.service console-getty.service || true
 msg_ok "Configured Auto-Login"
 
 msg_info "Configuring Modern CLI Stack"
