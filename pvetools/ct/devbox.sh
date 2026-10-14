@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+
+# Tell the engine to pull the install script from your custom repo and folder
+export GITHUB_REPO="raddadengineer/Utilities"
+export BRANCH="main/pvetools"
+
 source <(curl -s https://raw.githubusercontent.com/community-scripts/ProxmoxVE/main/misc/build.func)
 # Copyright (c) 2021-2024 tteck
 # Author: raddadengineer
