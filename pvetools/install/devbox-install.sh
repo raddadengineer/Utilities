@@ -12,6 +12,16 @@ msg_info "Installing Core Dependencies"
 $STD apt-get install -y curl wget git sudo build-essential python3 python3-pip python3-venv pipx openssh-server ca-certificates gnupg lsb-release fzf ripgrep fd-find zoxide bat
 msg_ok "Installed Core Dependencies"
 
+msg_info "Configuring Auto-Login"
+# This systemd override tells the container's console to bypass the login prompt
+$STD mkdir -p /etc/systemd/system/container-getty@1.service.d
+echo "[Service]
+ExecStart=
+ExecStart=-/sbin/agetty --autologin root --noclear --keep-baud tty%I 115200,38400,9600 \$TERM" >/etc/systemd/system/container-getty@1.service.d/override.conf
+$STD systemctl daemon-reload
+$STD systemctl restart container-getty@1.service
+msg_ok "Configured Auto-Login"
+
 msg_info "Configuring Modern CLI Stack"
 $STD mkdir -p ~/.local/bin
 $STD ln -s /usr/bin/batcat ~/.local/bin/bat || true
