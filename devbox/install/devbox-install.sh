@@ -64,24 +64,34 @@ $STD ln -sf /usr/bin/batcat /usr/local/bin/bat
 $STD ln -sf /usr/bin/fdfind /usr/local/bin/fd
 
 # eza modern ls replacement
-$STD wget -qO- https://raw.githubusercontent.com/eza-community/eza/main/deb.asc | gpg --dearmor --yes -o /etc/apt/keyrings/gierens.gpg
+wget -qO /tmp/eza.asc https://raw.githubusercontent.com/eza-community/eza/main/deb.asc
+$STD gpg --dearmor --yes -o /etc/apt/keyrings/gierens.gpg /tmp/eza.asc
+rm -f /tmp/eza.asc
 $STD chmod 644 /etc/apt/keyrings/gierens.gpg
 echo "deb [signed-by=/etc/apt/keyrings/gierens.gpg] http://deb.gierens.de stable main" | tee /etc/apt/sources.list.d/gierens.list >/dev/null
 $STD apt-get update
 $STD apt-get install -y eza
 
 # zellij terminal multiplexer
-$STD curl -L https://github.com/zellij-org/zellij/releases/latest/download/zellij-x86_64-unknown-linux-musl.tar.gz | tar -xz -C /usr/local/bin zellij
+$STD curl -fsSL -o /tmp/zellij.tar.gz https://github.com/zellij-org/zellij/releases/latest/download/zellij-x86_64-unknown-linux-musl.tar.gz
+$STD tar -xzf /tmp/zellij.tar.gz -C /usr/local/bin zellij
+rm -f /tmp/zellij.tar.gz
 
 # uv fast Python package manager (system-wide)
-$STD env UV_INSTALL_DIR="/usr/local/bin" sh <(curl -LsSf https://astral.sh/uv/install.sh)
+$STD curl -fsSL -o /tmp/uv-install.sh https://astral.sh/uv/install.sh
+$STD env UV_INSTALL_DIR="/usr/local/bin" sh /tmp/uv-install.sh
+rm -f /tmp/uv-install.sh
 msg_ok "Configured Modern CLI Stack"
 
 msg_info "Installing Docker & Container Tools"
-$STD sh <(curl -fsSL https://get.docker.com)
+$STD curl -fsSL -o /tmp/docker-install.sh https://get.docker.com
+$STD sh /tmp/docker-install.sh
+rm -f /tmp/docker-install.sh
 
 # lazydocker (system-wide)
-$STD env DIR="/usr/local/bin" bash <(curl -s https://raw.githubusercontent.com/jesseduffield/lazydocker/master/scripts/install_update_linux.sh)
+$STD curl -fsSL -o /tmp/lazydocker-install.sh https://raw.githubusercontent.com/jesseduffield/lazydocker/master/scripts/install_update_linux.sh
+$STD env DIR="/usr/local/bin" bash /tmp/lazydocker-install.sh
+rm -f /tmp/lazydocker-install.sh
 
 # lazygit (avoiding GitHub API rate limits via HTTP redirect location header)
 LAZYGIT_VERSION=$(curl -sI https://github.com/jesseduffield/lazygit/releases/latest | grep -i "^location:" | sed -E 's/.*tag\/v?//' | tr -d '\r\n')
@@ -94,7 +104,9 @@ rm -f /tmp/lazygit.tar.gz
 msg_ok "Installed Docker & Container Tools"
 
 msg_info "Installing Node.js"
-$STD bash <(curl -fsSL https://deb.nodesource.com/setup_20.x)
+$STD curl -fsSL -o /tmp/nodesource.sh https://deb.nodesource.com/setup_20.x
+$STD bash /tmp/nodesource.sh
+rm -f /tmp/nodesource.sh
 $STD apt-get install -y nodejs
 msg_ok "Installed Node.js"
 
@@ -103,8 +115,12 @@ $STD npm install -g @anthropic-ai/claude-code
 $STD npm install -g @google/gemini-cli
 $STD pipx ensurepath
 $STD env PIPX_HOME=/opt/pipx PIPX_BIN_DIR=/usr/local/bin pipx install aider-chat
-$STD curl -fsSL https://antigravity.google/cli/install.sh | bash -s -- --dir /usr/local/bin
-$STD bash <(curl -fsSL https://opencode.ai/install)
+$STD curl -fsSL -o /tmp/agy-install.sh https://antigravity.google/cli/install.sh
+$STD bash /tmp/agy-install.sh --dir /usr/local/bin
+rm -f /tmp/agy-install.sh
+$STD curl -fsSL -o /tmp/opencode-install.sh https://opencode.ai/install
+$STD bash /tmp/opencode-install.sh
+rm -f /tmp/opencode-install.sh
 $STD ln -sf /root/.opencode/bin/opencode /usr/local/bin/opencode
 msg_ok "Installed AI Agents"
 
@@ -117,13 +133,17 @@ auth: password
 password: ${CODE_SERVER_PW}
 cert: false
 EOF
-$STD sh <(curl -fsSL https://code-server.dev/install.sh)
+$STD curl -fsSL -o /tmp/code-server-install.sh https://code-server.dev/install.sh
+$STD sh /tmp/code-server-install.sh
+rm -f /tmp/code-server-install.sh
 $STD systemctl enable --now code-server@root
 msg_ok "Installed Browser IDE"
 
 msg_info "Installing Resource Monitor (btop) & Prompt (Starship)"
 $STD apt-get install -y btop
-$STD curl -sS https://starship.rs/install.sh | sh -s -- -y
+$STD curl -fsSL -o /tmp/starship-install.sh https://starship.rs/install.sh
+$STD sh /tmp/starship-install.sh -y
+rm -f /tmp/starship-install.sh
 msg_ok "Installed btop and Starship"
 
 msg_info "Configuring Shell Profile & Aliases"
