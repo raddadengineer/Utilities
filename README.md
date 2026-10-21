@@ -44,6 +44,17 @@ Guides and snippets for enabling GPU passthrough in Proxmox LXC containers.
 
 ---
 
+### `devbox/`
+Automated Proxmox VE helper scripts and container templates.
+
+- **`ct/devbox.sh` & `install/devbox-install.sh`**:
+  - Deploys an unprivileged Ubuntu 24.04 AI Devbox LXC container.
+  - Pre-loaded with Docker, Node.js, Python/uv, browser IDE (code-server), Starship, modern CLI tools (zellij, eza, bat, ripgrep, fzf, lazydocker, lazygit), and AI coding agents (Antigravity CLI, Claude Code, Gemini CLI, OpenCode, Aider).
+- **README.md**:
+  - Quick-start instructions, container specs, software stack, and password configuration.
+
+---
+
 ## 🚀 Getting Started
 
 1. **Asuswrt-Merlin VLAN Setup**  
@@ -57,6 +68,10 @@ Guides and snippets for enabling GPU passthrough in Proxmox LXC containers.
 
 3. **Proxmox GPU Passthrough**  
    - Follow `Prox-GPU/Readme.md` for enabling GPU access in LXC containers.
+
+4. **Proxmox Devbox LXC**  
+   - Run `bash -c "$(curl -fsSL https://raw.githubusercontent.com/raddadengineer/Utilities/main/devbox/ct/devbox.sh)"` on your Proxmox host.
+   - See `devbox/README.md` for complete configuration and tool references.
 
 ---
 
