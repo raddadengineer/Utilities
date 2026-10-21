@@ -37,8 +37,15 @@ bash -c "$(wget -qLO - https://raw.githubusercontent.com/raddadengineer/Utilitie
 
 ## 🧰 Included Software Stack
 
-### 1. Browser IDE
+### 1. Browser IDE & Mobile PWA
 - **[code-server](https://github.com/coder/code-server)**: Full VS Code environment accessible directly via web browser at `http://<CONTAINER_IP>:8080`.
+- **Pre-installed Extensions**:
+  - `ms-python.python`: Python language support, debugging, and linting.
+  - `esbenp.prettier-vscode`: Universal code formatting.
+  - `eamodio.gitlens`: Advanced visual Git inspection and history.
+  - `usernamehw.errorlens`: Inline diagnostic highlighting (no mouse hover needed on mobile).
+  - `redhat.vscode-yaml`: YAML language server with schema validation.
+- **iPad / Tablet Tuning**: Pre-configured with minimap disabled, word wrap enabled, smooth inertia touch scrolling, auto-save, and adaptive font sizing.
 
 ### 2. AI Coding Agents
 - **[Antigravity CLI (`agy`)](https://antigravity.google)**: Google's AI agent coding CLI (`/usr/local/bin/agy`).
@@ -54,6 +61,8 @@ bash -c "$(wget -qLO - https://raw.githubusercontent.com/raddadengineer/Utilitie
 - **pipx**: Isolated CLI tool installer.
 
 ### 4. Modern CLI & Productivity Stack
+- **[GitHub CLI (`gh`)](https://cli.github.com/)**: Fast, browser-based device-code login (`gh auth login --web`).
+- **[micro](https://micro-editor.github.io/)**: Touchscreen-friendly terminal text editor (supports tap-to-place cursor, touch scrolling, and standard shortcuts). Configured as default `$EDITOR`.
 - **[zellij](https://zellij.dev/)**: Terminal workspace and multiplexer.
 - **[eza](https://github.com/eza-community/eza)**: Modern replacement for `ls` with icons and git status.
 - **[bat](https://github.com/sharkdp/bat)**: Syntax-highlighting `cat` clone (`bat`).
@@ -63,6 +72,20 @@ bash -c "$(wget -qLO - https://raw.githubusercontent.com/raddadengineer/Utilitie
 - **[btop](https://github.com/aristocratos/btop)**: Resource and process monitor.
 - **[Starship](https://starship.rs/)**: Fast, customizable shell prompt.
 - **[lazydocker](https://github.com/jesseduffield/lazydocker)** & **[lazygit](https://github.com/jesseduffield/lazygit)**: Terminal UIs for Docker and Git.
+
+---
+
+## 📱 iPad / Mobile PWA Setup
+
+Turn Devbox into a native full-screen app on your iPad or iPhone:
+
+1. Open `http://<CONTAINER_IP>:8080` in **Safari**.
+2. Tap the **Share** button (box with upward arrow).
+3. Tap **Add to Home Screen**.
+4. Open the **Devbox** icon from your Home Screen.
+   - Runs full-screen without the Safari address bar or tab strip.
+   - Captures desktop keyboard shortcuts (`Cmd+P`, `Cmd+Shift+P`, `Cmd+W`).
+   - Automatically supports iPadOS trackpad and mouse gestures.
 
 ---
 

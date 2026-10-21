@@ -31,7 +31,14 @@ $STD apt-get install -y \
   fd-find \
   zoxide \
   bat \
-  jq
+  jq \
+  micro
+
+if ! command -v micro &>/dev/null; then
+  $STD curl -fsSL -o /tmp/getmic.sh https://getmic.ro
+  $STD env BINDIR="/usr/local/bin" sh /tmp/getmic.sh
+  rm -f /tmp/getmic.sh
+fi
 msg_ok "Installed Core Dependencies"
 
 msg_info "Configuring Auto-Login"
@@ -82,6 +89,14 @@ $STD curl -fsSL -o /tmp/uv-install.sh https://astral.sh/uv/install.sh
 $STD env UV_INSTALL_DIR="/usr/local/bin" sh /tmp/uv-install.sh
 rm -f /tmp/uv-install.sh
 msg_ok "Configured Modern CLI Stack"
+
+msg_info "Installing GitHub CLI (gh)"
+$STD curl -fsSL -o /etc/apt/keyrings/githubcli-archive-keyring.gpg https://cli.github.com/packages/githubcli-archive-keyring.gpg
+$STD chmod 644 /etc/apt/keyrings/githubcli-archive-keyring.gpg
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | tee /etc/apt/sources.list.d/github-cli.list >/dev/null
+$STD apt-get update
+$STD apt-get install -y gh
+msg_ok "Installed GitHub CLI (gh)"
 
 msg_info "Installing Docker & Container Tools"
 $STD curl -fsSL -o /tmp/docker-install.sh https://get.docker.com
@@ -136,8 +151,44 @@ EOF
 $STD curl -fsSL -o /tmp/code-server-install.sh https://code-server.dev/install.sh
 $STD sh /tmp/code-server-install.sh
 rm -f /tmp/code-server-install.sh
-$STD systemctl enable --now code-server@root
+
+# iPad / Tablet & PWA Optimized Settings
+mkdir -p /root/.local/share/code-server/User
+cat << 'EOF' > /root/.local/share/code-server/User/settings.json
+{
+  "editor.minimap.enabled": false,
+  "editor.wordWrap": "on",
+  "editor.fontSize": 14,
+  "editor.lineHeight": 22,
+  "editor.smoothScrolling": true,
+  "editor.mouseWheelZoom": true,
+  "terminal.integrated.fontSize": 13,
+  "terminal.integrated.lineHeight": 1.2,
+  "terminal.integrated.scrollback": 5000,
+  "workbench.startupEditor": "none",
+  "workbench.tips.enabled": false,
+  "workbench.editor.showTabs": "multiple",
+  "workbench.editor.tabSizing": "shrink",
+  "window.titleBarStyle": "custom",
+  "window.autoDetectColorScheme": true,
+  "files.autoSave": "afterDelay",
+  "files.autoSaveDelay": 1000
+}
+EOF
 msg_ok "Installed Browser IDE"
+
+msg_info "Pre-installing Recommended Extensions"
+for ext in \
+  ms-python.python \
+  esbenp.prettier-vscode \
+  eamodio.gitlens \
+  usernamehw.errorlens \
+  redhat.vscode-yaml; do
+  $STD code-server --install-extension "$ext" || true
+done
+msg_ok "Pre-installed Recommended Extensions"
+
+$STD systemctl enable --now code-server@root
 
 msg_info "Installing Resource Monitor (btop) & Prompt (Starship)"
 $STD apt-get install -y btop
@@ -151,6 +202,10 @@ cat << 'EOF' >> /root/.bashrc
 
 # Ensure system-wide and user local binaries are in PATH
 export PATH="/usr/local/bin:~/.local/bin:$PATH"
+
+# Default editor for Git and terminal (touch-friendly on iPad)
+export EDITOR="micro"
+export VISUAL="micro"
 
 # Modern CLI Aliases
 alias ls='eza --icons --group-directories-first'

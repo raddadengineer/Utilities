@@ -108,6 +108,12 @@ msg_ok "Completed Successfully!\n"
 echo -e "${APP} Web IDE: ${BL}http://${IP}:8080${CL}
 Password: ${GN}${CODE_PW:-devbox}${CL}
 
+📱 iPad / Mobile PWA Setup:
+   1. Open ${BL}http://${IP}:8080${CL} in Safari on your iPad or phone.
+   2. Tap the Share button (square with arrow up).
+   3. Select 'Add to Home Screen'.
+   4. Devbox launches full-screen with captured desktop shortcuts!
+
 To change the Web IDE password:
   1. Inside container: ${TAB}${BL}nano ~/.config/code-server/config.yaml${CL}
   2. Update the 'password:' value
