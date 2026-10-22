@@ -30,17 +30,19 @@ bash -c "$(wget -qLO - https://raw.githubusercontent.com/raddadengineer/Utilitie
 | **RAM** | 4096 MB | Configurable during setup |
 | **Disk** | 40 GB | Configurable during setup |
 | **Features** | `nesting=1,keyctl=1` | Required for Docker and container tools |
-| **Web IDE Port** | `8080` | [code-server](https://github.com/coder/code-server) |
-| **Default Password** | `devbox` (or container password) | Changeable in config |
+| **Web IDE Port** | `8080` | [code-server](https://github.com/coder/code-server) (VS Code in browser) |
+| **Web Terminal Port** | `7681` | [ttyd](https://github.com/tsl0922/ttyd) (Mobile-optimized web CLI) |
+| **Default Credentials** | User: `root` / Pass: `devbox` | Changeable in service configs |
 
 ---
 
 ## 🧰 Included Software Stack & Tool Reference
 
-### 1. Browser IDE & Mobile Development
+### 1. Browser IDE, Web CLI & Mobile Development
 | Tool / Component | Command / Path | Purpose |
 | :--- | :--- | :--- |
-| **[code-server](https://github.com/coder/code-server)** | `code-server` | Full VS Code in the browser accessible at `http://<IP>:8080`, tuned for iPad PWA and mobile touch |
+| **[code-server](https://github.com/coder/code-server)** | `code-server` (port 8080) | Full VS Code in the browser accessible at `http://<IP>:8080`, tuned for iPad PWA and mobile touch |
+| **[ttyd](https://github.com/tsl0922/ttyd)** | `ttyd` (port 7681) | Fast, lightweight web-based terminal accessible at `http://<IP>:7681` with mobile canvas rendering, authentication, and dark theme |
 | **Mobile PWA Tuning** | `~/.local/share/code-server/User/settings.json` | Pre-configured with auto-save, word wrap, smooth inertia touch scrolling, and disabled minimap for tablet/phone screens |
 
 #### Pre-installed VS Code Extensions
@@ -91,17 +93,31 @@ bash -c "$(wget -qLO - https://raw.githubusercontent.com/raddadengineer/Utilitie
 
 ---
 
-## 📱 iPad / Mobile PWA Setup
+## 📱 iPad & Mobile Setup
 
-Turn Devbox into a native full-screen app on your iPad or iPhone:
+### 1. PWA Standalone Mode (Add to Home Screen)
+Turn the Web IDE and Web Terminal into dedicated full-screen apps on your iPad or iPhone:
 
-1. Open `http://<CONTAINER_IP>:8080` in **Safari**.
+1. Open `http://<CONTAINER_IP>:8080` (IDE) or `http://<CONTAINER_IP>:7681` (CLI) in **Safari**.
 2. Tap the **Share** button (box with upward arrow).
 3. Tap **Add to Home Screen**.
-4. Open the **Devbox** icon from your Home Screen.
-   - Runs full-screen without the Safari address bar or tab strip.
-   - Captures desktop keyboard shortcuts (`Cmd+P`, `Cmd+Shift+P`, `Cmd+W`).
-   - Automatically supports iPadOS trackpad and mouse gestures.
+4. Open the app icon from your Home Screen:
+   - Runs in borderless full-screen without the Safari address bar or bottom tab strip.
+   - Captures desktop keyboard shortcuts (`Cmd+P`, `Cmd+W`, `Ctrl+C`).
+   - Supports native iPadOS trackpad and mouse gestures.
+
+### 2. Customizing `ttyd` for Mobile Screens
+You can customize the Web Terminal's appearance dynamically or persistently:
+
+* **Dynamic Screen-Size Adjustment via URL Parameters**:
+  * On a phone: `http://<CONTAINER_IP>:7681/?fontSize=16`
+  * On an iPad: `http://<CONTAINER_IP>:7681/?fontSize=14`
+  * High-res monitor: `http://<CONTAINER_IP>:7681/?fontSize=18`
+* **Mobile-Optimized Service Flags** (configured in `/etc/systemd/system/ttyd.service`):
+  * `fontSize=15`: Crisp, legible default for mobile viewports.
+  * `rendererType=canvas`: Uses HTML5 2D canvas instead of WebGL, reducing memory consumption and preventing iOS Safari WebKit tab reloads.
+  * `theme={...}`: High-contrast modern dark palette with clean cursor visibility.
+* **Auto-Launch Zellij**: To have `ttyd` automatically attach to a persistent Zellij session on connect, edit `/etc/systemd/system/ttyd.service` and replace `bash` with `zellij attach -c devbox`.
 
 ---
 
@@ -110,26 +126,23 @@ Turn Devbox into a native full-screen app on your iPad or iPhone:
 ### Default Credentials
 - **Console / SSH User**: `root`
 - **Auto-Login**: Enabled on Proxmox xterm.js Web GUI console and standard container TTY.
-- **Web IDE URL**: `http://<CONTAINER_IP>:8080`
-- **Web IDE Password**: `devbox` (or the password set during container creation).
+- **Web IDE URL**: `http://<CONTAINER_IP>:8080` (Password: `devbox` or container password)
+- **Web Terminal URL**: `http://<CONTAINER_IP>:7681` (User: `root` / Password: `devbox` or container password)
 
-### How to Change the Web IDE Password
+### How to Change Credentials
 Inside the container, run:
 
-1. Edit the configuration file:
+1. **Change Web IDE Password**:
    ```bash
    nano ~/.config/code-server/config.yaml
-   ```
-2. Update the `password:` field with your desired password:
-   ```yaml
-   bind-addr: 0.0.0.0:8080
-   auth: password
-   password: <your-new-password>
-   cert: false
-   ```
-3. Restart the service:
-   ```bash
+   # Update 'password:', then restart:
    systemctl restart code-server@root
+   ```
+2. **Change Web Terminal (ttyd) Credentials**:
+   ```bash
+   nano /etc/systemd/system/ttyd.service
+   # Update '-c root:<new_password>', then reload and restart:
+   systemctl daemon-reload && systemctl restart ttyd
    ```
 
 ---

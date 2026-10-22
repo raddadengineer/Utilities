@@ -93,6 +93,19 @@ function update_script() {
     msg_ok "Updated Global NPM Packages"
   fi
 
+  if command -v ttyd &>/dev/null; then
+    msg_info "Updating Web Terminal (ttyd)"
+    TTYD_ARCH="x86_64"
+    case "$(uname -m)" in
+      x86_64) TTYD_ARCH="x86_64" ;;
+      aarch64|arm64) TTYD_ARCH="aarch64" ;;
+    esac
+    curl -fsSL -o /usr/local/bin/ttyd "https://github.com/tsl0922/ttyd/releases/download/1.7.7/ttyd.${TTYD_ARCH}" &>/dev/null
+    chmod +x /usr/local/bin/ttyd
+    systemctl restart ttyd 2>/dev/null || true
+    msg_ok "Updated Web Terminal (ttyd)"
+  fi
+
   msg_ok "Updated $APP LXC"
   exit
 }
@@ -111,13 +124,17 @@ function description() {
 
   <p style='margin: 8px 0;'>
     <a href='http://${IP}:8080' target='_blank' rel='noopener noreferrer'>
-      <img src='https://img.shields.io/badge/%F0%9F%9A%80_Web_IDE-Open_Port_8080-00617f?style=for-the-badge' alt='Web IDE' />
+      <img src='https://img.shields.io/badge/%F0%9F%9A%80_Web_IDE-Port_8080-00617f?style=for-the-badge' alt='Web IDE' />
+    </a>
+    <a href='http://${IP}:7681' target='_blank' rel='noopener noreferrer'>
+      <img src='https://img.shields.io/badge/%F0%9F%92%BB_Terminal-Port_7681-2ea043?style=for-the-badge' alt='Web Terminal' />
     </a>
   </p>
 
   <p style='margin: 6px 0; font-size: 13px;'>
     <strong>Web IDE:</strong> <a href='http://${IP}:8080' target='_blank'>http://${IP}:8080</a><br/>
-    <strong>Default Password:</strong> <code>${CODE_PW:-devbox}</code>
+    <strong>Web Terminal:</strong> <a href='http://${IP}:7681' target='_blank'>http://${IP}:7681</a><br/>
+    <strong>Default Credentials:</strong> User: <code>root</code> &nbsp;|&nbsp; Password: <code>${CODE_PW:-devbox}</code>
   </p>
 
   <span style='margin: 0 8px;'>
@@ -140,16 +157,16 @@ CODE_PW=$(pct exec "$CTID" -- grep '^password:' /root/.config/code-server/config
 IP="${IP:-$(pct exec "$CTID" ip -4 addr show eth0 2>/dev/null | awk '/inet / {print $2}' | cut -d/ -f1)}"
 
 msg_ok "Completed Successfully!\n"
-echo -e "${APP} Web IDE: ${BL}http://${IP}:8080${CL}
-Password: ${GN}${CODE_PW:-devbox}${CL}
+echo -e "${APP} Services:
+  - Web IDE:      ${BL}http://${IP}:8080${CL}
+  - Web Terminal: ${BL}http://${IP}:7681${CL} (User: ${GN}root${CL} / Password: ${GN}${CODE_PW:-devbox}${CL})
 
 📱 iPad / Mobile PWA Setup:
-   1. Open ${BL}http://${IP}:8080${CL} in Safari on your iPad or phone.
+   1. Open ${BL}http://${IP}:8080${CL} (IDE) or ${BL}http://${IP}:7681${CL} (CLI) in Safari.
    2. Tap the Share button (square with arrow up).
    3. Select 'Add to Home Screen'.
-   4. Devbox launches full-screen with captured desktop shortcuts!
+   4. Devbox launches full-screen as a standalone app!
 
-To change the Web IDE password:
-  1. Inside container: ${TAB}${BL}nano ~/.config/code-server/config.yaml${CL}
-  2. Update the 'password:' value
-  3. Restart service: ${TAB}${BL}systemctl restart code-server@root${CL}\n"
+To change credentials:
+  - Web IDE:      ${BL}nano ~/.config/code-server/config.yaml${CL} && ${BL}systemctl restart code-server@root${CL}
+  - Web Terminal: ${BL}nano /etc/systemd/system/ttyd.service${CL} && ${BL}systemctl daemon-reload && systemctl restart ttyd${CL}\n"

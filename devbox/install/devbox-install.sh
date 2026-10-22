@@ -190,6 +190,45 @@ msg_ok "Pre-installed Recommended Extensions"
 
 $STD systemctl enable --now code-server@root
 
+msg_info "Installing Web Terminal (ttyd)"
+TTYD_ARCH="x86_64"
+case "$(uname -m)" in
+  x86_64) TTYD_ARCH="x86_64" ;;
+  aarch64|arm64) TTYD_ARCH="aarch64" ;;
+esac
+$STD curl -fsSL -o /usr/local/bin/ttyd "https://github.com/tsl0922/ttyd/releases/download/1.7.7/ttyd.${TTYD_ARCH}"
+$STD chmod +x /usr/local/bin/ttyd
+
+cat <<EOF >/etc/systemd/system/ttyd.service
+[Unit]
+Description=ttyd - Web Terminal
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/ttyd \\
+  -p 7681 \\
+  -W \\
+  -c root:${CODE_SERVER_PW} \\
+  -t fontSize=15 \\
+  -t rendererType=canvas \\
+  -t disableLeaveAlert=true \\
+  -t 'theme={"background": "#181825", "foreground": "#cdd6f4", "cursor": "#f5e0dc", "selectionBackground": "#585b70"}' \\
+  bash
+Restart=always
+RestartSec=3
+WorkingDirectory=/root
+Environment=HOME=/root
+Environment=TERM=xterm-256color
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+$STD systemctl daemon-reload
+$STD systemctl enable --now ttyd.service
+msg_ok "Installed Web Terminal (ttyd)"
+
 msg_info "Installing Resource Monitor (btop) & Prompt (Starship)"
 $STD apt-get install -y btop
 $STD curl -fsSL -o /tmp/starship-install.sh https://starship.rs/install.sh
