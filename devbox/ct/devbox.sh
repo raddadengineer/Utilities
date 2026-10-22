@@ -76,21 +76,23 @@ function update_script() {
   header_info
   check_container_storage
   check_container_resources
-  if ! command -v code-server &>/dev/null; then msg_error "No ${APP} Installation Found!"; exit; fi
-  msg_info "Updating Base System"
+  if ! command -v code-server &>/dev/null && ! command -v ttyd &>/dev/null; then
+    msg_error "No ${APP} Installation Found!"
+    exit 1
+  fi
+
+  msg_info "Updating Base System & APT Packages"
   apt-get update &>/dev/null
   apt-get -y upgrade &>/dev/null
-  msg_ok "Updated Base System"
+  msg_ok "Updated Base System & APT Packages"
 
-  msg_info "Updating Browser IDE (code-server)"
-  sh <(curl -fsSL https://code-server.dev/install.sh) &>/dev/null
-  systemctl restart code-server@root
-  msg_ok "Updated Browser IDE"
-
-  if command -v npm &>/dev/null; then
-    msg_info "Updating Global NPM Packages"
-    npm update -g &>/dev/null || true
-    msg_ok "Updated Global NPM Packages"
+  if command -v code-server &>/dev/null; then
+    msg_info "Updating Browser IDE (code-server)"
+    curl -fsSL -o /tmp/code-server-install.sh https://code-server.dev/install.sh &>/dev/null
+    sh /tmp/code-server-install.sh &>/dev/null || true
+    rm -f /tmp/code-server-install.sh
+    systemctl restart code-server@root 2>/dev/null || true
+    msg_ok "Updated Browser IDE (code-server)"
   fi
 
   if command -v ttyd &>/dev/null; then
@@ -105,6 +107,84 @@ function update_script() {
     systemctl restart ttyd 2>/dev/null || true
     msg_ok "Updated Web Terminal (ttyd)"
   fi
+
+  if command -v npm &>/dev/null; then
+    msg_info "Updating Global NPM Packages (Claude Code, Gemini CLI)"
+    npm update -g &>/dev/null || true
+    msg_ok "Updated Global NPM Packages"
+  fi
+
+  if command -v uv &>/dev/null; then
+    msg_info "Updating Python Package Manager (uv)"
+    uv self update &>/dev/null || true
+    msg_ok "Updated uv"
+  fi
+
+  if command -v pipx &>/dev/null; then
+    msg_info "Updating pipx Packages (Aider)"
+    env PIPX_HOME=/opt/pipx PIPX_BIN_DIR=/usr/local/bin pipx upgrade-all &>/dev/null || true
+    msg_ok "Updated pipx Packages"
+  fi
+
+  if command -v agy &>/dev/null; then
+    msg_info "Updating Antigravity CLI (agy)"
+    curl -fsSL -o /tmp/agy-install.sh https://antigravity.google/cli/install.sh &>/dev/null && \
+      bash /tmp/agy-install.sh --dir /usr/local/bin &>/dev/null && \
+      rm -f /tmp/agy-install.sh || true
+    msg_ok "Updated Antigravity CLI"
+  fi
+
+  if command -v opencode &>/dev/null; then
+    msg_info "Updating OpenCode"
+    opencode upgrade &>/dev/null || {
+      curl -fsSL -o /tmp/opencode-install.sh https://opencode.ai/install &>/dev/null && \
+        bash /tmp/opencode-install.sh &>/dev/null && \
+        rm -f /tmp/opencode-install.sh && \
+        ln -sf /root/.opencode/bin/opencode /usr/local/bin/opencode || true
+    }
+    msg_ok "Updated OpenCode"
+  fi
+
+  if command -v lazydocker &>/dev/null; then
+    msg_info "Updating lazydocker"
+    curl -fsSL -o /tmp/lazydocker-install.sh https://raw.githubusercontent.com/jesseduffield/lazydocker/master/scripts/install_update_linux.sh &>/dev/null && \
+      env DIR="/usr/local/bin" bash /tmp/lazydocker-install.sh &>/dev/null && \
+      rm -f /tmp/lazydocker-install.sh || true
+    msg_ok "Updated lazydocker"
+  fi
+
+  if command -v lazygit &>/dev/null; then
+    msg_info "Updating lazygit"
+    LAZYGIT_VERSION=$(curl -sI https://github.com/jesseduffield/lazygit/releases/latest 2>/dev/null | grep -i "^location:" | sed -E 's/.*tag\/v?//' | tr -d '\r\n')
+    if [[ -z "$LAZYGIT_VERSION" ]]; then
+      LAZYGIT_VERSION="0.44.1"
+    fi
+    curl -fsSL -o /tmp/lazygit.tar.gz "https://github.com/jesseduffield/lazygit/releases/download/v${LAZYGIT_VERSION}/lazygit_${LAZYGIT_VERSION}_Linux_x86_64.tar.gz" &>/dev/null && \
+      tar -xzf /tmp/lazygit.tar.gz -C /usr/local/bin lazygit &>/dev/null && \
+      rm -f /tmp/lazygit.tar.gz || true
+    msg_ok "Updated lazygit"
+  fi
+
+  if command -v zellij &>/dev/null; then
+    msg_info "Updating zellij"
+    curl -fsSL -o /tmp/zellij.tar.gz https://github.com/zellij-org/zellij/releases/latest/download/zellij-x86_64-unknown-linux-musl.tar.gz &>/dev/null && \
+      tar -xzf /tmp/zellij.tar.gz -C /usr/local/bin zellij &>/dev/null && \
+      rm -f /tmp/zellij.tar.gz || true
+    msg_ok "Updated zellij"
+  fi
+
+  if command -v starship &>/dev/null; then
+    msg_info "Updating Starship Prompt"
+    curl -fsSL -o /tmp/starship-install.sh https://starship.rs/install.sh &>/dev/null && \
+      sh /tmp/starship-install.sh -y &>/dev/null && \
+      rm -f /tmp/starship-install.sh || true
+    msg_ok "Updated Starship Prompt"
+  fi
+
+  msg_info "Cleaning up"
+  apt-get -y autoremove &>/dev/null
+  apt-get -y autoclean &>/dev/null
+  msg_ok "Cleaned up"
 
   msg_ok "Updated $APP LXC"
   exit

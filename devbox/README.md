@@ -149,13 +149,39 @@ Inside the container, run:
 
 ## 🔄 Updating Devbox
 
-To update an existing Devbox container, re-run the script in your Proxmox VE shell:
+### How to Run Updates
+
+Updates run **inside the container**. You can trigger the update routine using either of two methods:
+
+#### Method 1: Inside the Container (Recommended)
+Open your terminal (via Web Terminal at `http://<IP>:7681`, Proxmox Console, or SSH) and run:
 
 ```bash
-bash -c "$(curl -fsSL https://raw.githubusercontent.com/raddadengineer/Utilities/main/devbox/ct/devbox.sh)"
+update
 ```
 
-Select **YES** to run the update routine, which updates:
-- System packages (`apt-get upgrade`)
-- Browser IDE (`code-server`)
-- Global npm agents (`@anthropic-ai/claude-code`, `@google/gemini-cli`)
+*(You can also re-run the script directly inside the container:* `bash -c "$(curl -fsSL https://raw.githubusercontent.com/raddadengineer/Utilities/main/devbox/ct/devbox.sh)"`*)*
+
+#### Method 2: From the Proxmox VE Host Shell
+If you are logged into your Proxmox host shell, run the update into the container using `pct exec`:
+
+```bash
+pct exec <CTID> -- update
+```
+
+*(Replace `<CTID>` with your Devbox container ID, e.g. `107`).*
+
+---
+
+### What Gets Updated
+
+The update routine comprehensively upgrades the entire software stack:
+
+| Component Category | Tools Updated | Update Mechanism |
+| :--- | :--- | :--- |
+| **Base System & Security** | Ubuntu Noble packages, dependencies | `apt-get update && apt-get -y upgrade` |
+| **Container & Runtimes** | Docker CE, Docker Compose, Node.js 20, Python 3 | Managed via official APT repositories |
+| **Web Services** | [code-server](https://github.com/coder/code-server) (port 8080)<br>[ttyd](https://github.com/tsl0922/ttyd) (port 7681) | Upstream installer script & binary refresh + service restarts |
+| **AI Coding Agents** | [Claude Code](https://github.com/anthropics/claude-code)<br>[Gemini CLI](https://github.com/google-gemini/gemini-cli)<br>[Aider](https://aider.chat)<br>[Antigravity CLI](https://antigravity.google) (`agy`)<br>[OpenCode](https://opencode.ai) | `npm update -g`<br>`npm update -g`<br>`pipx upgrade-all`<br>Official `agy` installer<br>`opencode upgrade` |
+| **Modern CLI Stack** | [uv](https://astral.sh/uv)<br>[GitHub CLI](https://cli.github.com/) (`gh`)<br>[micro](https://micro-editor.github.io/)<br>[eza](https://github.com/eza-community/eza), [bat](https://github.com/sharkdp/bat), [ripgrep](https://github.com/BurntSushi/ripgrep), [fd](https://github.com/sharkdp/fd), [zoxide](https://github.com/ajeetdsouza/zoxide), [fzf](https://github.com/junegunn/fzf), [btop](https://github.com/aristocratos/btop)<br>[zellij](https://zellij.dev/)<br>[lazydocker](https://github.com/jesseduffield/lazydocker)<br>[lazygit](https://github.com/jesseduffield/lazygit)<br>[Starship](https://starship.rs/) | `uv self update`<br>APT repository<br>APT / upstream<br>APT repositories<br><br>GitHub release binary<br>Upstream installer script<br>GitHub release binary<br>Upstream installer script |
+| **System Hygiene** | Package cache & unused dependencies | `apt-get autoremove && apt-get autoclean` |
