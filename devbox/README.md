@@ -35,43 +35,59 @@ bash -c "$(wget -qLO - https://raw.githubusercontent.com/raddadengineer/Utilitie
 
 ---
 
-## 🧰 Included Software Stack
+## 🧰 Included Software Stack & Tool Reference
 
-### 1. Browser IDE & Mobile PWA
-- **[code-server](https://github.com/coder/code-server)**: Full VS Code environment accessible directly via web browser at `http://<CONTAINER_IP>:8080`.
-- **Pre-installed Extensions**:
-  - `ms-python.python`: Python language support, debugging, and linting.
-  - `esbenp.prettier-vscode`: Universal code formatting.
-  - `eamodio.gitlens`: Advanced visual Git inspection and history.
-  - `usernamehw.errorlens`: Inline diagnostic highlighting (no mouse hover needed on mobile).
-  - `redhat.vscode-yaml`: YAML language server with schema validation.
-- **iPad / Tablet Tuning**: Pre-configured with minimap disabled, word wrap enabled, smooth inertia touch scrolling, auto-save, and adaptive font sizing.
+### 1. Browser IDE & Mobile Development
+| Tool / Component | Command / Path | Purpose |
+| :--- | :--- | :--- |
+| **[code-server](https://github.com/coder/code-server)** | `code-server` | Full VS Code in the browser accessible at `http://<IP>:8080`, tuned for iPad PWA and mobile touch |
+| **Mobile PWA Tuning** | `~/.local/share/code-server/User/settings.json` | Pre-configured with auto-save, word wrap, smooth inertia touch scrolling, and disabled minimap for tablet/phone screens |
+
+#### Pre-installed VS Code Extensions
+| Extension ID | Name | Purpose |
+| :--- | :--- | :--- |
+| `ms-python.python` | Python | Rich Python language support, debugging, virtualenv detection, and code intelligence |
+| `esbenp.prettier-vscode` | Prettier | Universal opinionated code formatting for JS, TS, HTML, CSS, JSON, Markdown |
+| `eamodio.gitlens` | GitLens | Visual Git history, line-by-line blame annotations, and repository exploration |
+| `usernamehw.errorlens` | ErrorLens | Inline diagnostic error and warning highlighting (no mouse hover needed on touchscreens) |
+| `redhat.vscode-yaml` | YAML | Schema validation, autocompletion, and hover documentation for Docker and Kubernetes files |
 
 ### 2. AI Coding Agents
-- **[Antigravity CLI (`agy`)](https://antigravity.google)**: Google's AI agent coding CLI (`/usr/local/bin/agy`).
-- **[Claude Code (`claude`)](https://github.com/anthropics/claude-code)**: Anthropic's terminal agent (`@anthropic-ai/claude-code`).
-- **[Gemini CLI (`gemini`)](https://github.com/google-gemini/gemini-cli)**: Google Gemini CLI (`@google/gemini-cli`).
-- **[OpenCode (`opencode`)](https://opencode.ai)**: Terminal agent and workflow tool.
-- **[Aider (`aider`)](https://aider.chat)**: AI pair programming in the terminal.
+| Agent / Assistant | Command | Purpose |
+| :--- | :--- | :--- |
+| **[Antigravity CLI](https://antigravity.google)** | `agy` | Google's agentic AI coding CLI with subagent orchestration and automated workflows |
+| **[Claude Code](https://github.com/anthropics/claude-code)** | `claude` | Anthropic's agentic terminal assistant for searching codebases, editing files, and running commands |
+| **[Gemini CLI](https://github.com/google-gemini/gemini-cli)** | `gemini` | Google Gemini CLI assistant for terminal-based prompt queries and code generation |
+| **[OpenCode](https://opencode.ai)** | `opencode` | AI-native terminal pair programmer and multi-model workflow orchestrator |
+| **[Aider](https://aider.chat)** | `aider` | Git-integrated AI pair programmer for terminal-based interactive editing and auto-commits |
 
 ### 3. Container & Runtime Tools
-- **Docker CE & Docker Compose**: Full container runtime configured with LXC nesting support.
-- **Node.js 20.x LTS & npm**: Core JavaScript runtime for agents and web tools.
-- **Python 3 & [uv](https://astral.sh/uv)**: Blazing-fast Python package and project manager.
-- **pipx**: Isolated CLI tool installer.
+| Tool / Runtime | Command | Purpose |
+| :--- | :--- | :--- |
+| **Docker CE** | `docker` | Container engine with LXC nesting support for building and running containers |
+| **Docker Compose** | `docker compose` | Multi-container application orchestrator |
+| **Node.js 20 LTS** | `node`, `npm` | Core JavaScript runtime for web development and AI agent packages |
+| **Python 3** | `python3`, `pip` | Core Python 3 environment with `pip` and virtual environment support |
+| **[uv](https://astral.sh/uv)** | `uv`, `uvx` | Ultra-fast Rust-based Python package resolver, installer, and virtualenv manager |
+| **pipx** | `pipx` | Isolated CLI tool installer for running Python applications in sandboxed environments |
 
 ### 4. Modern CLI & Productivity Stack
-- **[GitHub CLI (`gh`)](https://cli.github.com/)**: Fast, browser-based device-code login (`gh auth login --web`).
-- **[micro](https://micro-editor.github.io/)**: Touchscreen-friendly terminal text editor (supports tap-to-place cursor, touch scrolling, and standard shortcuts). Configured as default `$EDITOR`.
-- **[zellij](https://zellij.dev/)**: Terminal workspace and multiplexer.
-- **[eza](https://github.com/eza-community/eza)**: Modern replacement for `ls` with icons and git status.
-- **[bat](https://github.com/sharkdp/bat)**: Syntax-highlighting `cat` clone (`bat`).
-- **[ripgrep (`rg`)](https://github.com/BurntSushi/ripgrep)** & **[fd (`fd`)](https://github.com/sharkdp/fd)**: High-speed search utilities.
-- **[zoxide (`z`)](https://github.com/ajeetdsouza/zoxide)**: Smarter `cd` directory jumper.
-- **[fzf](https://github.com/junegunn/fzf)**: Command-line fuzzy finder.
-- **[btop](https://github.com/aristocratos/btop)**: Resource and process monitor.
-- **[Starship](https://starship.rs/)**: Fast, customizable shell prompt.
-- **[lazydocker](https://github.com/jesseduffield/lazydocker)** & **[lazygit](https://github.com/jesseduffield/lazygit)**: Terminal UIs for Docker and Git.
+| Tool | Command / Alias | Purpose |
+| :--- | :--- | :--- |
+| **[GitHub CLI](https://cli.github.com/)** | `gh` | Official GitHub CLI with frictionless browser device-code authentication (`gh auth login --web`) |
+| **[micro](https://micro-editor.github.io/)** | `micro` (default `$EDITOR`) | Touchscreen-friendly terminal text editor (supports tap-to-place cursor, touch scrolling, and standard shortcuts) |
+| **[zellij](https://zellij.dev/)** | `zellij` | Rust-based terminal workspace manager, session multiplexer, and floating layout engine |
+| **[eza](https://github.com/eza-community/eza)** | `eza` (aliased to `ls`, `ll`) | Modern replacement for `ls` with color-coded icons, file metadata, and Git status |
+| **[bat](https://github.com/sharkdp/bat)** | `bat` (aliased to `cat`) | Syntax-highlighting `cat` clone with line numbers and Git modification markers |
+| **[ripgrep](https://github.com/BurntSushi/ripgrep)** | `rg` (aliased to `grep`) | Ultra-fast recursive line-oriented regex search utility |
+| **[fd](https://github.com/sharkdp/fd)** | `fd` (aliased to `find`) | User-friendly, fast alternative to `find` with colorized output and regex support |
+| **[zoxide](https://github.com/ajeetdsouza/zoxide)** | `z` (aliased to `cd`) | Smarter `cd` command that learns your most frequent directories |
+| **[fzf](https://github.com/junegunn/fzf)** | `fzf` | Interactive command-line fuzzy finder for files, history, and processes |
+| **[btop](https://github.com/aristocratos/btop)** | `btop` | Terminal-based resource monitor displaying CPU, memory, disks, network, and processes |
+| **[Starship](https://starship.rs/)** | Prompt | Minimal, blazing-fast shell prompt displaying Git branch, language runtimes, and status |
+| **[lazydocker](https://github.com/jesseduffield/lazydocker)** | `lazydocker` | Terminal UI for managing Docker containers, images, logs, and volumes |
+| **[lazygit](https://github.com/jesseduffield/lazygit)** | `lazygit` | Terminal UI for Git commands, diffing, staging hunks, and managing branches |
+| **jq** | `jq` | Lightweight and flexible command-line JSON processor |
 
 ---
 
