@@ -97,6 +97,41 @@ function update_script() {
   exit
 }
 
+function description() {
+  IP="${IP:-$(pct exec "$CTID" ip -4 addr show eth0 2>/dev/null | awk '/inet / {print $2}' | cut -d/ -f1)}"
+  CODE_PW=$(pct exec "$CTID" -- grep '^password:' /root/.config/code-server/config.yaml 2>/dev/null | awk '{print $2}')
+
+  DESCRIPTION=$(cat <<EOF
+<div align='center'>
+  <a href='https://github.com/raddadengineer/Utilities' target='_blank' rel='noopener noreferrer'>
+    <img src='https://raw.githubusercontent.com/community-scripts/core/main/images/logo-81x112.png' alt='Devbox' height='38' width='28' style='height:38px; width:auto;'/>
+  </a>
+
+  <h2 style='font-size: 20px; margin: 8px 0;'>${APP} LXC</h2>
+
+  <p style='margin: 8px 0;'>
+    <a href='http://${IP}:8080' target='_blank' rel='noopener noreferrer'>
+      <img src='https://img.shields.io/badge/%F0%9F%9A%80_Web_IDE-Open_Port_8080-00617f?style=for-the-badge' alt='Web IDE' />
+    </a>
+  </p>
+
+  <p style='margin: 6px 0; font-size: 13px;'>
+    <strong>Web IDE:</strong> <a href='http://${IP}:8080' target='_blank'>http://${IP}:8080</a><br/>
+    <strong>Default Password:</strong> <code>${CODE_PW:-devbox}</code>
+  </p>
+
+  <span style='margin: 0 8px;'>
+    <a href='https://github.com/raddadengineer/Utilities/tree/main/devbox' target='_blank' rel='noopener noreferrer' style='text-decoration: none; color: #00617f;'>📖 Documentation</a>
+  </span>
+  <span style='margin: 0 8px;'>
+    <a href='https://github.com/raddadengineer/Utilities' target='_blank' rel='noopener noreferrer' style='text-decoration: none; color: #00617f;'>💻 GitHub Repository</a>
+  </span>
+</div>
+EOF
+)
+  pct set "$CTID" -description "$DESCRIPTION"
+}
+
 start
 build_container
 description
