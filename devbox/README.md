@@ -114,10 +114,12 @@ You can customize the Web Terminal's appearance dynamically or persistently:
   * On an iPad: `http://<CONTAINER_IP>:7681/?fontSize=14`
   * High-res monitor: `http://<CONTAINER_IP>:7681/?fontSize=18`
 * **Mobile-Optimized Service Flags** (configured in `/etc/systemd/system/ttyd.service`):
+  * `login` (Native PAM authentication): Uses the standard Linux terminal `login` prompt instead of HTTP Basic Auth (`-c`), avoiding iOS/iPadOS Safari's `NSURLSession` WebSocket Basic Auth drop bug (`Press Enter to Reconnect`).
+  * `-P 5`: Sends WebSocket ping heartbeats every 5 seconds to keep mobile connections alive.
   * `fontSize=15`: Crisp, legible default for mobile viewports.
   * `rendererType=canvas`: Uses HTML5 2D canvas instead of WebGL, reducing memory consumption and preventing iOS Safari WebKit tab reloads.
   * `theme={...}`: High-contrast modern dark palette with clean cursor visibility.
-* **Auto-Launch Zellij**: To have `ttyd` automatically attach to a persistent Zellij session on connect, edit `/etc/systemd/system/ttyd.service` and replace `bash` with `zellij attach -c devbox`.
+* **Auto-Launch Zellij**: To have `ttyd` automatically attach to a persistent Zellij session on connect, edit `/etc/systemd/system/ttyd.service` and replace `login` with `zellij attach -c devbox`.
 
 ---
 
@@ -127,7 +129,7 @@ You can customize the Web Terminal's appearance dynamically or persistently:
 - **Console / SSH User**: `root`
 - **Auto-Login**: Enabled on Proxmox xterm.js Web GUI console and standard container TTY.
 - **Web IDE URL**: `http://<CONTAINER_IP>:8080` (Password: `devbox` or container password)
-- **Web Terminal URL**: `http://<CONTAINER_IP>:7681` (User: `root` / Password: `devbox` or container password)
+- **Web Terminal URL**: `http://<CONTAINER_IP>:7681` (Terminal `login:` `root` / Password: `devbox` or container password)
 
 ### How to Change Credentials
 Inside the container, run:
@@ -138,11 +140,9 @@ Inside the container, run:
    # Update 'password:', then restart:
    systemctl restart code-server@root
    ```
-2. **Change Web Terminal (ttyd) Credentials**:
+2. **Change Root / Web Terminal (ttyd) & SSH Password**:
    ```bash
-   nano /etc/systemd/system/ttyd.service
-   # Update '-c root:<new_password>', then reload and restart:
-   systemctl daemon-reload && systemctl restart ttyd
+   passwd root
    ```
 
 ---

@@ -191,6 +191,7 @@ msg_ok "Pre-installed Recommended Extensions"
 $STD systemctl enable --now code-server@root
 
 msg_info "Installing Web Terminal (ttyd)"
+echo "root:${CODE_SERVER_PW}" | chpasswd
 TTYD_ARCH="x86_64"
 case "$(uname -m)" in
   x86_64) TTYD_ARCH="x86_64" ;;
@@ -209,12 +210,12 @@ Type=simple
 ExecStart=/usr/local/bin/ttyd \\
   -p 7681 \\
   -W \\
-  -c root:${CODE_SERVER_PW} \\
+  -P 5 \\
   -t fontSize=15 \\
   -t rendererType=canvas \\
   -t disableLeaveAlert=true \\
   -t 'theme={"background": "#181825", "foreground": "#cdd6f4", "cursor": "#f5e0dc", "selectionBackground": "#585b70"}' \\
-  bash
+  login
 Restart=always
 RestartSec=3
 WorkingDirectory=/root

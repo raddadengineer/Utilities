@@ -104,6 +104,14 @@ function update_script() {
     esac
     curl -fsSL -o /usr/local/bin/ttyd "https://github.com/tsl0922/ttyd/releases/download/1.7.7/ttyd.${TTYD_ARCH}" &>/dev/null
     chmod +x /usr/local/bin/ttyd
+    if grep -q -- "-c root:" /etc/systemd/system/ttyd.service 2>/dev/null; then
+      OLD_PW=$(grep '^password:' /root/.config/code-server/config.yaml 2>/dev/null | awk '{print $2}')
+      echo "root:${OLD_PW:-devbox}" | chpasswd 2>/dev/null || true
+      sed -i '/-c root:/d' /etc/systemd/system/ttyd.service
+      sed -i 's/-W \\/-W \\\n  -P 5 \\/' /etc/systemd/system/ttyd.service
+      sed -i 's/^  bash$/  login/' /etc/systemd/system/ttyd.service
+      systemctl daemon-reload 2>/dev/null || true
+    fi
     systemctl restart ttyd 2>/dev/null || true
     msg_ok "Updated Web Terminal (ttyd)"
   fi
@@ -249,4 +257,4 @@ echo -e "${APP} Services:
 
 To change credentials:
   - Web IDE:      ${BL}nano ~/.config/code-server/config.yaml${CL} && ${BL}systemctl restart code-server@root${CL}
-  - Web Terminal: ${BL}nano /etc/systemd/system/ttyd.service${CL} && ${BL}systemctl daemon-reload && systemctl restart ttyd${CL}\n"
+  - Root / CLI:   ${BL}passwd root${CL}\n"
