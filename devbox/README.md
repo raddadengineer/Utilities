@@ -114,12 +114,12 @@ You can customize the Web Terminal's appearance dynamically or persistently:
   * On an iPad: `http://<CONTAINER_IP>:7681/?fontSize=14`
   * High-res monitor: `http://<CONTAINER_IP>:7681/?fontSize=18`
 * **Mobile-Optimized Service Flags** (configured in `/etc/systemd/system/ttyd.service`):
-  * `login` (Native PAM authentication): Uses the standard Linux terminal `login` prompt instead of HTTP Basic Auth (`-c`), avoiding iOS/iPadOS Safari's `NSURLSession` WebSocket Basic Auth drop bug (`Press Enter to Reconnect`).
+  * `/bin/bash -l` (Direct login shell): Bypasses HTTP Basic Auth (`-c`) and unprivileged LXC `pam_loginuid` restrictions, preventing iOS/iPadOS Safari's `NSURLSession` WebSocket drop bug (`Press Enter to Reconnect`).
   * `-P 5`: Sends WebSocket ping heartbeats every 5 seconds to keep mobile connections alive.
   * `fontSize=15`: Crisp, legible default for mobile viewports.
   * `rendererType=canvas`: Uses HTML5 2D canvas instead of WebGL, reducing memory consumption and preventing iOS Safari WebKit tab reloads.
   * `theme={...}`: High-contrast modern dark palette with clean cursor visibility.
-* **Auto-Launch Zellij**: To have `ttyd` automatically attach to a persistent Zellij session on connect, edit `/etc/systemd/system/ttyd.service` and replace `login` with `zellij attach -c devbox`.
+* **Auto-Launch Zellij**: To have `ttyd` automatically attach to a persistent Zellij session on connect, edit `/etc/systemd/system/ttyd.service` and replace `/bin/bash -l` with `zellij attach -c devbox`.
 
 ---
 
@@ -127,9 +127,9 @@ You can customize the Web Terminal's appearance dynamically or persistently:
 
 ### Default Credentials
 - **Console / SSH User**: `root`
-- **Auto-Login**: Enabled on Proxmox xterm.js Web GUI console and standard container TTY.
+- **Auto-Login**: Enabled on Proxmox xterm.js Web GUI console, standard container TTY, and Web Terminal (`ttyd`).
 - **Web IDE URL**: `http://<CONTAINER_IP>:8080` (Password: `devbox` or container password)
-- **Web Terminal URL**: `http://<CONTAINER_IP>:7681` (Terminal `login:` `root` / Password: `devbox` or container password)
+- **Web Terminal URL**: `http://<CONTAINER_IP>:7681` (Direct root login shell)
 
 ### How to Change Credentials
 Inside the container, run:

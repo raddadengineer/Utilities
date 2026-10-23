@@ -191,7 +191,6 @@ msg_ok "Pre-installed Recommended Extensions"
 $STD systemctl enable --now code-server@root
 
 msg_info "Installing Web Terminal (ttyd)"
-echo "root:${CODE_SERVER_PW}" | chpasswd
 TTYD_ARCH="x86_64"
 case "$(uname -m)" in
   x86_64) TTYD_ARCH="x86_64" ;;
@@ -215,7 +214,7 @@ ExecStart=/usr/local/bin/ttyd \\
   -t rendererType=canvas \\
   -t disableLeaveAlert=true \\
   -t 'theme={"background": "#181825", "foreground": "#cdd6f4", "cursor": "#f5e0dc", "selectionBackground": "#585b70"}' \\
-  login
+  /bin/bash -l
 Restart=always
 RestartSec=3
 WorkingDirectory=/root
@@ -265,6 +264,7 @@ msg_ok "Configured Shell Profile"
 
 motd_ssh
 customize
+sed -i 's|https://raw.githubusercontent.com/community-scripts/ProxmoxVE/main/ct/devbox.sh|https://raw.githubusercontent.com/raddadengineer/Utilities/main/devbox/ct/devbox.sh|g' /usr/bin/update 2>/dev/null || true
 
 msg_info "Cleaning up"
 $STD apt-get -y autoremove

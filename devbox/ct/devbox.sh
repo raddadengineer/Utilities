@@ -104,12 +104,10 @@ function update_script() {
     esac
     curl -fsSL -o /usr/local/bin/ttyd "https://github.com/tsl0922/ttyd/releases/download/1.7.7/ttyd.${TTYD_ARCH}" &>/dev/null
     chmod +x /usr/local/bin/ttyd
-    if grep -q -- "-c root:" /etc/systemd/system/ttyd.service 2>/dev/null; then
-      OLD_PW=$(grep '^password:' /root/.config/code-server/config.yaml 2>/dev/null | awk '{print $2}')
-      echo "root:${OLD_PW:-devbox}" | chpasswd 2>/dev/null || true
+    if grep -qE -- "(-c root:|  login$|  bash$)" /etc/systemd/system/ttyd.service 2>/dev/null; then
       sed -i '/-c root:/d' /etc/systemd/system/ttyd.service
-      sed -i 's/-W \\/-W \\\n  -P 5 \\/' /etc/systemd/system/ttyd.service
-      sed -i 's/^  bash$/  login/' /etc/systemd/system/ttyd.service
+      grep -q -- "-P 5" /etc/systemd/system/ttyd.service || sed -i 's/-W \\/-W \\\n  -P 5 \\/' /etc/systemd/system/ttyd.service
+      sed -i -E 's/^  (bash|login)$/  \/bin\/bash -l/' /etc/systemd/system/ttyd.service
       systemctl daemon-reload 2>/dev/null || true
     fi
     systemctl restart ttyd 2>/dev/null || true
@@ -238,16 +236,19 @@ EOF
 }
 
 start
+trap '' TSTP TTIN TTOU
 build_container
+declare -f reclaim_tty &>/dev/null && reclaim_tty
 description
 
 CODE_PW=$(pct exec "$CTID" -- grep '^password:' /root/.config/code-server/config.yaml 2>/dev/null | awk '{print $2}')
 IP="${IP:-$(pct exec "$CTID" ip -4 addr show eth0 2>/dev/null | awk '/inet / {print $2}' | cut -d/ -f1)}"
+declare -f reclaim_tty &>/dev/null && reclaim_tty
 
 msg_ok "Completed Successfully!\n"
 echo -e "${APP} Services:
-  - Web IDE:      ${BL}http://${IP}:8080${CL}
-  - Web Terminal: ${BL}http://${IP}:7681${CL} (User: ${GN}root${CL} / Password: ${GN}${CODE_PW:-devbox}${CL})
+  - Web IDE:      ${BL}http://${IP}:8080${CL} (Password: ${GN}${CODE_PW:-devbox}${CL})
+  - Web Terminal: ${BL}http://${IP}:7681${CL}
 
 📱 iPad / Mobile PWA Setup:
    1. Open ${BL}http://${IP}:8080${CL} (IDE) or ${BL}http://${IP}:7681${CL} (CLI) in Safari.
