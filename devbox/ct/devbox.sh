@@ -197,8 +197,8 @@ function update_script() {
 }
 
 function description() {
-  IP="${IP:-$(pct exec "$CTID" ip -4 addr show eth0 2>/dev/null | awk '/inet / {print $2}' | cut -d/ -f1)}"
-  CODE_PW=$(pct exec "$CTID" -- grep '^password:' /root/.config/code-server/config.yaml 2>/dev/null | awk '{print $2}')
+  IP=$(pct exec "$CTID" ip a s dev eth0 2>/dev/null | awk '/inet / {print $2}' | cut -d/ -f1 || true)
+  CODE_PW="${PW:-devbox}"
 
   DESCRIPTION=$(cat <<EOF
 <div align='center'>
@@ -241,8 +241,6 @@ build_container
 declare -f reclaim_tty &>/dev/null && reclaim_tty
 description
 
-CODE_PW=$(pct exec "$CTID" -- grep '^password:' /root/.config/code-server/config.yaml 2>/dev/null | awk '{print $2}')
-IP="${IP:-$(pct exec "$CTID" ip -4 addr show eth0 2>/dev/null | awk '/inet / {print $2}' | cut -d/ -f1)}"
 declare -f reclaim_tty &>/dev/null && reclaim_tty
 
 msg_ok "Completed Successfully!\n"
