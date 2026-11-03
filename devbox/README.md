@@ -1,10 +1,44 @@
-# 📦 Proxmox VE Devbox LXC
+# 📦 Devbox — AI-Ready Developer Environment
 
-Automated deployment of an AI-ready developer environment in an unprivileged Ubuntu 24.04 LXC container on Proxmox VE.
+Automated deployment of an AI-ready developer environment available as a **Docker container** (deploy anywhere) or a **Proxmox VE LXC container** (unprivileged Ubuntu 24.04).
 
 ---
 
 ## 🚀 Quick Start
+
+### Option 1: Docker (Deploy Anywhere)
+
+Deploy with **Docker Compose**:
+
+```bash
+git clone https://github.com/raddadengineer/Utilities.git
+cd Utilities/devbox
+docker compose up -d
+```
+
+Or run directly with the **Docker CLI**:
+
+```bash
+docker run -d \
+  --name devbox \
+  --restart unless-stopped \
+  -p 8080:8080 \
+  -p 7681:7681 \
+  -e PASSWORD=devbox \
+  -v devbox-workspace:/home/devbox/workspace \
+  -v devbox-config:/home/devbox/.config \
+  -v devbox-data:/home/devbox/.local/share \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  devbox:latest
+```
+
+Access your environment:
+- **Web IDE (VS Code)**: `http://<HOST_IP>:8080` (Password: `devbox`)
+- **Web Terminal (ttyd)**: `http://<HOST_IP>:7681` (Direct unprivileged shell)
+
+---
+
+### Option 2: Proxmox VE LXC
 
 Run the following command in your Proxmox VE shell (Host Node):
 
@@ -20,7 +54,25 @@ bash -c "$(wget -qLO - https://raw.githubusercontent.com/raddadengineer/Utilitie
 
 ---
 
-## ⚙️ Container Specifications
+## ⚙️ Specifications & Deployment Options
+
+### Docker Deployment Details
+
+When running via Docker Compose (`docker-compose.yml`) or `docker run`:
+
+| Resource / Setting | Value | Description |
+| :--- | :--- | :--- |
+| **Base Image** | `ubuntu:24.04` | Hardened, non-root multi-architecture base |
+| **Default User** | `devbox` (UID/GID `1000`) | Unprivileged user with passwordless `sudo` rights |
+| **Web IDE Port** | `8080` | [code-server](https://github.com/coder/code-server) (VS Code in browser) |
+| **Web Terminal Port** | `7681` | [ttyd](https://github.com/tsl0922/ttyd) (Mobile-optimized web CLI) |
+| **Healthcheck** | `http://127.0.0.1:8080/healthz` | Monitored by Docker every 30s |
+| **Process Manager** | Supervisor (`supervisord`) | Auto-restarts services and handles graceful shutdown |
+| **Environment Variables** | `PASSWORD=devbox`<br>`TZ=UTC` | Password for Web IDE (set to `none` to disable)<br>Container timezone |
+| **Named Volumes** | `devbox-workspace`<br>`devbox-config`<br>`devbox-data` | Mounts to `/home/devbox/workspace`<br>Mounts to `/home/devbox/.config`<br>Mounts to `/home/devbox/.local/share` |
+| **Host Docker Socket** | `/var/run/docker.sock` | Mount to manage host containers directly from inside Devbox |
+
+### Proxmox VE LXC Specifications
 
 | Setting | Default Value | Notes |
 | :--- | :--- | :--- |

@@ -1,0 +1,32 @@
+services:
+  devbox:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: devbox:latest
+    container_name: devbox
+    restart: unless-stopped
+    ports:
+      - "8080:8080"  # Web IDE (code-server)
+      - "7681:7681"  # Web Terminal (ttyd)
+    environment:
+      # Password for Web IDE (code-server). Set to "none" to disable password
+      - PASSWORD=devbox
+      # Container timezone
+      - TZ=UTC
+    volumes:
+      # Persistent workspace directory for your development projects
+      - devbox-workspace:/home/devbox/workspace
+      # Persistent user configurations and credentials
+      - devbox-config:/home/devbox/.config
+      # Persistent VS Code extensions and application data
+      - devbox-data:/home/devbox/.local/share
+      # Optional: Mount host Docker daemon socket to run/manage containers from inside Devbox
+      - /var/run/docker.sock:/var/run/docker.sock
+    security_opt:
+      - seccomp:unconfined
+
+volumes:
+  devbox-workspace:
+  devbox-config:
+  devbox-data:
